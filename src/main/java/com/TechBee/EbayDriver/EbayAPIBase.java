@@ -1,11 +1,13 @@
 package com.TechBee.EbayDriver;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -17,11 +19,14 @@ import java.util.concurrent.TimeUnit;
 public class EbayAPIBase {
     protected static WebDriver ebayDriver;
     protected static WebDriverWait wait;
-    public static Map<String, String> xpaths;
+    protected static Map<String, String> xpaths;
+    protected static JavascriptExecutor js;
 
     public static WebDriver getWebdriver() {
         return ebayDriver;
     }
+    public static WebDriverWait getWebDriverWait() { return wait; }
+    public static Map<String, String> getXpaths() {return xpaths;}
 
     static {
         // create the xpaths map
@@ -49,17 +54,24 @@ public class EbayAPIBase {
     }
 
     EbayAPIBase() {
+        Initialize();
+    }
+
+    public void Initialize() {
         // path to driver executable
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Ryan\\Downloads\\chromedriver_win32\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Ryan\\Documents\\chromedriver_win32\\chromedriver.exe");
 
         //---------chrome options---------//
         ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--headless");
-        options.addArguments("--start-maximized");
+
+        options.addArguments("--window-size=1920,1080");
+
+        // options.addArguments("--allow-insecure-localhost");
+        // options.addArguments("--headless"); test cases will not pass in headless mode... can't figure out why
 
         // create a chrome driver with the options
         ebayDriver = new ChromeDriver(options);
-
+        js = (JavascriptExecutor) ebayDriver;
         // initialize an explicit wait
         wait = new WebDriverWait(ebayDriver, 20);
 
@@ -72,13 +84,15 @@ public class EbayAPIBase {
 
     public void Clean() {
         ebayDriver.quit();
+        ebayDriver = null;
     }
 
     public WebElement waitThenClickOn(String xpath) {
+        WebElement webElement = ebayDriver.findElement(By.xpath(xpath));
         // waiting until the element is clickable
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
         // find the webelement object after it shows up
-        WebElement webElement = ebayDriver.findElement(By.xpath(xpath));
+
         // click on the element
         webElement.click();
         return webElement;
@@ -86,6 +100,10 @@ public class EbayAPIBase {
 
     public void homepage() {
         ebayDriver.get("https://www.ebay.com");
+        EbayAPIBase.getWebDriverWait().until(
+                webDriver -> ((JavascriptExecutor) webDriver).executeScript(
+                        "return document.readyState").equals(
+                        "complete"));
     }
 
     public WebElement navigateTo(String key) {

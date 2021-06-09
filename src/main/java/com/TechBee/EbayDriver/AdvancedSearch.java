@@ -4,9 +4,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class AdvancedSearch extends Homepage {
+public class AdvancedSearch extends EbayAPIBase {
     protected static Map<String, String> categoriesOptions;
     protected static Map<String, String> searchIncludingOptions;
     protected static Map<String, String> priceOptions;
@@ -16,6 +17,7 @@ public class AdvancedSearch extends Homepage {
     protected static String clearOptionsXpath = "//*[@id=\"adv_search_from\"]/div[3]/a";
 
     static {
+        categoriesOptions = new HashMap<>();
         //xpaths of categories
         categoriesOptions.put("DROPDOWN_MENU", "//*[@id=\"e1-1\"]");
         categoriesOptions.put("ALL_CATEGORIES", "//*[@id=\"e1-1\"]/option[1]");
@@ -58,6 +60,7 @@ public class AdvancedSearch extends Homepage {
 
     // search including options
     static {
+        searchIncludingOptions = new HashMap<>();
         searchIncludingOptions.put("TITLE_AND_DESCRIPTION","//*[@id=\"LH_TitleDesc\"]");
         searchIncludingOptions.put("COMPLETED_LISTINGS", "//*[@id=\"LH_Complete\"]");
         searchIncludingOptions.put("SOLD_LISTINGS", "//*[@id=\"LH_Sold\"]");
@@ -65,6 +68,7 @@ public class AdvancedSearch extends Homepage {
 
     // price options
     static {
+        priceOptions = new HashMap<>();
         priceOptions.put("CHECKBOX","//*[@id=\"_mPrRngCbx\"]");
         priceOptions.put("MIN_PRICE_BOX", "//*[@id=\"adv_search_from\"]/fieldset[3]/input[2]");
         priceOptions.put("MAX_PRICE_BOX", "//*[@id=\"adv_search_from\"]/fieldset[3]/input[3]");
@@ -72,6 +76,7 @@ public class AdvancedSearch extends Homepage {
 
     // sort by options
     static {
+        sortOptions = new HashMap<>();
         sortOptions.put("DROPDOWN_MENU","//*[@id=\"LH_SORT_BY\"]");
         sortOptions.put("ENDING_SOONEST", "//*[@id=\"LH_SORT_BY\"]/option[1]");
         sortOptions.put("NEWLY_LISTED","//*[@id=\"LH_SORT_BY\"]/option[2]");
@@ -82,6 +87,7 @@ public class AdvancedSearch extends Homepage {
     }
 
     static {
+        resultViewOptions = new HashMap<>();
         resultViewOptions.put("DROPDOWN_MENU", "//*[@id=\"LH_VIEW_RESULTS_AS\"]");
         resultViewOptions.put("ALL_ITEMS", "//*[@id=\"LH_VIEW_RESULTS_AS\"]/option[1]");
         resultViewOptions.put("PICTURE_GALLERY", "//*[@id=\"LH_VIEW_RESULTS_AS\"]/option[2]");
@@ -89,6 +95,7 @@ public class AdvancedSearch extends Homepage {
     }
 
     static {
+        resultsPerPageOptions = new HashMap<>();
         resultsPerPageOptions.put("DROPDOWN_MENU", "//*[@id=\"LH_IPP\"]");
         resultsPerPageOptions.put("25", "//*[@id=\"LH_IPP\"]/option[1]");
         resultsPerPageOptions.put("50", "//*[@id=\"LH_IPP\"]/option[2]");
@@ -99,8 +106,12 @@ public class AdvancedSearch extends Homepage {
     public void selectCategory(String category) {
         // select category
         if(category != null) {
+
             // click on categories dropdown
             WebElement categoriesDropDown = ebayDriver.findElement(By.xpath(categoriesOptions.get("DROPDOWN_MENU")));
+
+            js.executeScript("arguments[0].scrollIntoView(true);",categoriesDropDown); // scroll until the product element is in view
+
             categoriesDropDown.click();
 
             // get category option element
@@ -119,6 +130,7 @@ public class AdvancedSearch extends Homepage {
         for(String searchIncludingOption : searchIncluding) {
             // click on the corresponding search option
             WebElement searchIncludingOptionElement = ebayDriver.findElement(By.xpath(searchIncludingOptions.get(searchIncludingOption)));
+            js.executeScript("arguments[0].scrollIntoView(true);",searchIncludingOptionElement);
             searchIncludingOptionElement.click();
         }
     }
@@ -163,7 +175,7 @@ public class AdvancedSearch extends Homepage {
             js.executeScript("arguments[0].scrollIntoView(true);",viewResultsDropDown);
             viewResultsDropDown.click();
 
-            ebayDriver.findElement(By.xpath(sortOptions.get(viewResults))).click();
+            ebayDriver.findElement(By.xpath(resultViewOptions.get(viewResults))).click();
         }
     }
 
@@ -173,9 +185,11 @@ public class AdvancedSearch extends Homepage {
             js.executeScript("arguments[0].scrollIntoView(true);",resultsPerPageDropDown);
             resultsPerPageDropDown.click();
 
-            ebayDriver.findElement(By.xpath(sortOptions.get(resultsPerPage))).click();
+            ebayDriver.findElement(By.xpath(resultsPerPageOptions.get(String.valueOf(resultsPerPage)))).click();
         }
     }
+
+
 
     public void advancedSearch(String keywords,
                                String category,
@@ -190,6 +204,8 @@ public class AdvancedSearch extends Homepage {
         WebElement searchBar = ebayDriver.findElement(By.xpath("//*[@id=\"_nkw\"]"));
         // input keywords
         searchBar.sendKeys(keywords);
+        // scroll down to checkbox
+        js.executeScript("arguments[0].scrollIntoView(true);",searchBar);
 
         // select category
         selectCategory(category);
@@ -213,5 +229,11 @@ public class AdvancedSearch extends Homepage {
         if(clearOptions) {
             ebayDriver.findElement(By.xpath(clearOptionsXpath)).click();
         }
+        else {
+            // press the search button
+            getWebdriver().findElement(By.xpath("//*[@id=\"searchBtnLowerLnk\"]")).click();
+        }
+
+
     }
 }

@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class Homepage extends EbayAPIBase{
 
-    protected static JavascriptExecutor js = (JavascriptExecutor) ebayDriver;
+
     static {
         xpaths.put("SAVED","//*[@id=\"mainContent\"]/div[1]/ul/li[2]/a");
         xpaths.put("MOTORS","//*[@id=\"mainContent\"]/div[1]/ul/li[3]/a");
@@ -31,7 +31,7 @@ public class Homepage extends EbayAPIBase{
 
     }
 
-    public Homepage() {}
+//    public Homepage() {}
 
     public WebElement moveMouse(String xpath) {
         // waiting until the element is clickable
